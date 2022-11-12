@@ -2,21 +2,44 @@ package main
 
 import (
 	"flag"
-	"github.com/BurntSushi/toml"
+	"gobot/cmd/bot"
+	"gobot/internal/models"
 	"log"
+
+	"github.com/BurntSushi/toml"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 type Config struct {
 	Env      string
 	BotToken string
+	Dsn      string
 }
 
 func main() {
-	configPath := flag.String("config", "", "Path the config file")
+	configPath := flag.String("config", "", "Path to config file")
 	flag.Parse()
-	conf := &Config{}
-	_, err := toml.DecodeFile(*configPath, conf)
+
+	cfg := &Config{}
+	_, err := toml.DecodeFile(*configPath, cfg)
+
 	if err != nil {
-		log.Fatalf("Ошибка декодирования файла конфигурации %v", err)
+		log.Fatalf("Ошибка декодирования файла конфигов %v", err)
 	}
+
+	db, err := gorm.Open(sqlite.Open(cfg.Dsn), &gorm.Config{})
+
+	if err != nil {
+		log.Fatalf("Ошибка подключения к БД %v", err)
+	}
+
+	upgradeBot := bot_init.UpgradeBot{
+		Bot:   bot_init.InitBot(cfg.BotToken),
+		Users: &models.UserModel{Db: db},
+	}
+
+	upgradeBot.Bot.Handle("/start", upgradeBot.StartHandler)
+
+	upgradeBot.Bot.Start()
 }
