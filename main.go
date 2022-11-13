@@ -2,13 +2,12 @@ package main
 
 import (
 	"flag"
+	"github.com/BurntSushi/toml"
 	"gobot/cmd/bot"
 	"gobot/internal/models"
-	"log"
-
-	"github.com/BurntSushi/toml"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"log"
 )
 
 type Config struct {
@@ -28,7 +27,7 @@ func main() {
 		log.Fatalf("Ошибка декодирования файла конфигов %v", err)
 	}
 
-	db, err := gorm.Open(sqlite.Open(cfg.Dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(cfg.Dsn), &gorm.Config{})
 
 	if err != nil {
 		log.Fatalf("Ошибка подключения к БД %v", err)
