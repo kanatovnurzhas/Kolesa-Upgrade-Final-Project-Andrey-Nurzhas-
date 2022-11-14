@@ -21,11 +21,6 @@ type Recipient interface {
 	// Must return legit Telegram chat_id or username
 	Recipient() string
 }
-type martian struct{}
-
-func (m martian) Recipient() string {
-	return "nack nack"
-}
 
 func main() {
 	http.HandleFunc("/", handler)
