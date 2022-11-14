@@ -45,7 +45,6 @@ func InitBot(token string) *telebot.Bot {
 	}
 
 	b, err := telebot.NewBot(pref)
-
 	if err != nil {
 		log.Fatalf("Ошибка при инициализации бота %v", err)
 	}
