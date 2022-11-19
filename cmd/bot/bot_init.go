@@ -1,8 +1,12 @@
-package bot_init
+package tgbot
 
 import (
+	"flag"
+	"github.com/BurntSushi/toml"
 	"gobot/internal/models"
 	"gopkg.in/telebot.v3"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"log"
 	"time"
 )
@@ -12,30 +16,10 @@ type UpgradeBot struct {
 	Users *models.UserModel
 }
 
-func (bot *UpgradeBot) StartHandler(ctx telebot.Context) error {
-	newUser := models.User{
-		Name:       ctx.Sender().Username,
-		TelegramId: ctx.Chat().ID,
-		FirstName:  ctx.Sender().FirstName,
-		LastName:   ctx.Sender().LastName,
-		ChatId:     ctx.Chat().ID,
-	}
-
-	existUser, err := bot.Users.FindOne(ctx.Chat().ID)
-
-	if err != nil {
-		log.Printf("Ошибка получения пользователя %v", err)
-	}
-
-	if existUser == nil {
-		err := bot.Users.Create(newUser)
-
-		if err != nil {
-			log.Printf("Ошибка создания пользователя %v", err)
-		}
-	}
-
-	return ctx.Send("Привет, " + ctx.Sender().FirstName)
+type Config struct {
+	Env      string
+	BotToken string
+	Dsn      string
 }
 
 func InitBot(token string) *telebot.Bot {
@@ -50,4 +34,30 @@ func InitBot(token string) *telebot.Bot {
 	}
 
 	return b
+}
+
+func RunBot() {
+	configPath := flag.String("config", "", "Path to config file")
+	flag.Parse()
+
+	cfg := &Config{}
+	_, err := toml.DecodeFile(*configPath, cfg)
+
+	if err != nil {
+		log.Fatalf("Ошибка декодирования файла конфигов %v", err)
+	}
+
+	db, err := gorm.Open(mysql.Open(cfg.Dsn), &gorm.Config{})
+
+	if err != nil {
+		log.Fatalf("Ошибка подключения к БД %v", err)
+	}
+
+	upgradeBot := UpgradeBot{
+		Bot:   InitBot(cfg.BotToken),
+		Users: &models.UserModel{Db: db},
+	}
+
+	upgradeBot.Bot.Handle("/start", upgradeBot.StartHandler)
+	upgradeBot.Bot.Start()
 }
