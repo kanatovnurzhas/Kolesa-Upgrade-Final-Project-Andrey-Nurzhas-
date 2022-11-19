@@ -12,8 +12,9 @@ import (
 )
 
 type UpgradeBot struct {
-	Bot   *telebot.Bot
-	Users *models.UserModel
+	Bot     *telebot.Bot
+	Users   *models.UserModel
+	Channel chan models.Message
 }
 
 type Config struct {
@@ -36,7 +37,7 @@ func InitBot(token string) *telebot.Bot {
 	return b
 }
 
-func RunBot() {
+func RunBot(ch chan models.Message) {
 	configPath := flag.String("config", "", "Path to config file")
 	flag.Parse()
 
@@ -54,10 +55,17 @@ func RunBot() {
 	}
 
 	upgradeBot := UpgradeBot{
-		Bot:   InitBot(cfg.BotToken),
-		Users: &models.UserModel{Db: db},
+		Bot:     InitBot(cfg.BotToken),
+		Users:   &models.UserModel{Db: db},
+		Channel: ch,
 	}
 
 	upgradeBot.Bot.Handle("/start", upgradeBot.StartHandler)
+	//upgradeBot.Bot.Handle("/", upgradeBot.SendMessage)
+	upgradeBot.SendMessage()
+	//for {
+	//	upgradeBot.Bot.Send("")
+	//}
+
 	upgradeBot.Bot.Start()
 }

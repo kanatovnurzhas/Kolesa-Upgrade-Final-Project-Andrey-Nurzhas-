@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"gobot/internal/models"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 )
 
-func MessageHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Server) MessageHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		log.Println("не метод POST")
 		return
@@ -17,7 +17,7 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	msg := models.Message{}
 
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("Ошибка при чтении тела запроса")
 	}
@@ -29,6 +29,8 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Message:" + msg.Message)
 
+	s.channel <- msg
+	fmt.Println("Сообщение отправилось")
 	//x := r.Form.Get("text")
 	//fmt.Println(x)
 }

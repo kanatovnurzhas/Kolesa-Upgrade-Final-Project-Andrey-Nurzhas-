@@ -1,18 +1,23 @@
 package delivery
 
-import "net/http"
+import (
+	"gobot/internal/models"
+	"net/http"
+)
 
 type Server struct {
-	mux *http.ServeMux
+	mux     *http.ServeMux
+	channel chan models.Message
 }
 
-func New() *Server {
+func New(ch chan models.Message) *Server {
 	return &Server{
-		mux: http.NewServeMux(),
+		mux:     http.NewServeMux(),
+		channel: ch,
 	}
 }
 
 func (s *Server) Route() *http.ServeMux {
-	s.mux.HandleFunc("/message", MessageHandler)
+	s.mux.HandleFunc("/message", s.MessageHandler)
 	return s.mux
 }
