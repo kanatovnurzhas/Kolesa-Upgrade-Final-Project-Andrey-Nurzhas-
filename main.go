@@ -35,7 +35,7 @@ func main() {
 		Users: &models.UserModel{Db: db},
 	}
 	srv := server.Server(upgradeBot, cfg)
-	go log.Fatal(srv.ListenAndServe())
+	go srv.ListenAndServe()
 	upgradeBot.Bot.Handle("/start", upgradeBot.StartHandler)
 	upgradeBot.Bot.Start()
 

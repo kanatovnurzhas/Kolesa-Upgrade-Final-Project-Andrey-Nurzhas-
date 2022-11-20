@@ -5,7 +5,6 @@ import (
 	bot_init "gobot/cmd/bot"
 	Config "gobot/config"
 	Recipient "gobot/internal/models"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -25,15 +24,12 @@ func (h MyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	result, existUser := h.Bot.Users.FindAll()
 
 	for result.Next() {
-		err := h.Bot.Users.Db.ScanRows(result, &existUser)
-		if err != nil {
-			fmt.Print(err)
-		}
+		h.Bot.Users.Db.ScanRows(result, &existUser)
 		texttt := &Recipient.Recipient{
 			User: strconv.FormatInt(existUser.TelegramId, 10),
 		}
 		texttt.Recipient()
-		log.Fatal(h.Bot.Bot.Send(texttt, x))
+		h.Bot.Bot.Send(texttt, x)
 	}
 
 }
