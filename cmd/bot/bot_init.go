@@ -60,12 +60,10 @@ func RunBot(ch chan models.Message) {
 		Channel: ch,
 	}
 
-	upgradeBot.Bot.Handle("/start", upgradeBot.StartHandler)
-	//upgradeBot.Bot.Handle("/", upgradeBot.SendMessage)
-	upgradeBot.SendMessage()
-	//for {
-	//	upgradeBot.Bot.Send("")
-	//}
+	for {
+		upgradeBot.Bot.Handle("/start", upgradeBot.StartHandler)
+		upgradeBot.SendMessage()
+		upgradeBot.Bot.Start()
+	}
 
-	upgradeBot.Bot.Start()
 }

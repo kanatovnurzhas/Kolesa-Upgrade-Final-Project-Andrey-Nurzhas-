@@ -5,6 +5,7 @@ import (
 	"gobot/internal/models"
 	"gopkg.in/telebot.v3"
 	"log"
+	"strconv"
 )
 
 type Recipient struct {
@@ -12,7 +13,6 @@ type Recipient struct {
 }
 
 func (r Recipient) Recipient() string {
-	r.user = "934574456 "
 	return r.user
 }
 
@@ -26,12 +26,13 @@ func (bot *UpgradeBot) StartHandler(ctx telebot.Context) error {
 	}
 
 	existUser, err := bot.Users.FindOne(ctx.Chat().ID)
+	//findUser := bot
 
 	if err != nil {
 		log.Printf("Ошибка получения пользователя %v", err)
 	}
 
-	if existUser == nil && err == nil {
+	if existUser == nil {
 		err := bot.Users.Create(newUser)
 
 		if err != nil {
@@ -45,13 +46,17 @@ func (bot *UpgradeBot) StartHandler(ctx telebot.Context) error {
 func (bot *UpgradeBot) SendMessage() {
 	msg := <-bot.Channel
 	fmt.Println("Сэнд сообщение бота " + msg.Message)
+
 	recep := &Recipient{
 		user: "",
 	}
-
-	_, err := bot.Bot.Send(recep, msg.Message)
-	if err != nil {
-		return
+	allUser := bot.Users.FindAllUsers()
+	for i := range allUser {
+		recep.user = strconv.Itoa(int(allUser[i].TelegramId))
+		_, err := bot.Bot.Send(recep, msg.Message)
+		if err != nil {
+			return
+		}
 	}
 
 }
