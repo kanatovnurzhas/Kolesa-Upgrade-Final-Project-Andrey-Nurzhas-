@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	bot_init "gobot/cmd/bot"
 	Config "gobot/config"
 	Recipient "gobot/internal/models"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -15,17 +17,23 @@ type MyHandler struct {
 
 func (h MyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	r.ParseForm()
+	err := r.ParseForm()
+	if err != nil {
+		fmt.Println(err)
+	}
 	x := r.Form.Get("text")
 	result, existUser := h.Bot.Users.FindAll()
 
 	for result.Next() {
-		h.Bot.Users.Db.ScanRows(result, &existUser)
+		err := h.Bot.Users.Db.ScanRows(result, &existUser)
+		if err != nil {
+			fmt.Print(err)
+		}
 		texttt := &Recipient.Recipient{
 			User: strconv.FormatInt(existUser.TelegramId, 10),
 		}
 		texttt.Recipient()
-		h.Bot.Bot.Send(texttt, x)
+		log.Fatal(h.Bot.Bot.Send(texttt, x))
 	}
 
 }
