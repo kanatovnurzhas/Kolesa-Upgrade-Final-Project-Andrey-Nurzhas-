@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -24,11 +25,6 @@ type MyHandler struct {
 
 type Recipient struct {
 	user string
-}
-
-func (r Recipient) Recipient() string {
-	r.user = "748668631" //Сейчас тут мой(Андрея) idшник
-	return r.user
 }
 
 func main() {
@@ -63,8 +59,7 @@ func main() {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
-
-	log.Fatal(server.ListenAndServe())
+	go server.ListenAndServe()
 	upgradeBot.Bot.Handle("/start", upgradeBot.StartHandler)
 	upgradeBot.Bot.Start()
 
@@ -73,10 +68,18 @@ func (h MyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()
 	x := r.Form.Get("text")
-	log.Printf(x)
-	texttt := &Recipient{
-		user: "",
+	result, existUser := h.bot.Users.FindAll()
+
+	for result.Next() {
+		h.bot.Users.Db.ScanRows(result, &existUser)
+		texttt := &Recipient{
+			user: strconv.FormatInt(existUser.TelegramId, 10),
+		}
+		texttt.Recipient()
+		h.bot.Bot.Send(texttt, x)
 	}
-	texttt.Recipient()
-	h.bot.Bot.Send(texttt, x)
+
+}
+func (r Recipient) Recipient() string {
+	return r.user
 }

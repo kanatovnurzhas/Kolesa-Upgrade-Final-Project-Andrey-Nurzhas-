@@ -1,6 +1,9 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"database/sql"
+	"gorm.io/gorm"
+)
 
 type User struct {
 	gorm.Model
@@ -32,4 +35,10 @@ func (m *UserModel) FindOne(telegramId int64) (*User, error) {
 	}
 
 	return &existUser, nil
+}
+
+func (m *UserModel) FindAll() (*sql.Rows, User) {
+	existUser := User{}
+	result, _ := m.Db.Select("telegram_id").Find(&existUser).Rows()
+	return result, existUser
 }
