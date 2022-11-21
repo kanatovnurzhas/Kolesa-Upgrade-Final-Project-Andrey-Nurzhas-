@@ -21,7 +21,7 @@ func (bot *UpgradeBot) StartHandler(ctx telebot.Context) error {
 		log.Printf("Ошибка получения пользователя %v", err)
 	}
 
-	if existUser == nil && err == nil {
+	if existUser == nil {
 		err := bot.Users.Create(newUser)
 
 		if err != nil {
@@ -30,8 +30,4 @@ func (bot *UpgradeBot) StartHandler(ctx telebot.Context) error {
 	}
 
 	return ctx.Send("Привет, " + ctx.Sender().FirstName)
-}
-
-func SendMessage() {
-
 }

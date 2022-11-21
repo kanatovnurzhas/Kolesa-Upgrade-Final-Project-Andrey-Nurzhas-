@@ -1,18 +1,23 @@
 package server
 
 import (
-	"fmt"
-	"gobot/internal/delivery"
-	"log"
+	bot_init "gobot/cmd/bot"
+	Config "gobot/config"
+	MyHandler "gobot/internal/handlers"
 	"net/http"
+	"time"
 )
 
-func Server() {
-	server := delivery.New()
-	fmt.Print("Starting server at port 8080...\nhttp://localhost:8080/\n")
-
-	if err := http.ListenAndServe(":8080", server.Route()); err != nil {
-		log.Println(err)
-		return
+func Server(bot bot_init.UpgradeBot, config *Config.Config) *http.Server {
+	handler := &MyHandler.MyHandler{
+		Config: config,
+		Bot:    bot,
 	}
+	server := &http.Server{
+		Addr:         ":8080",
+		Handler:      handler,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+	}
+	return server
 }
