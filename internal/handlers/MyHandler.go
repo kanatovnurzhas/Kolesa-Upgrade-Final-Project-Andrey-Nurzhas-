@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"fmt"
-	bot_init "gobot/cmd/bot"
 	Config "gobot/config"
+	bot_init "gobot/internal/bot"
 	Recipient "gobot/internal/models"
 	"net/http"
 	"strconv"
@@ -29,7 +29,10 @@ func (h MyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			User: strconv.FormatInt(existUser.TelegramId, 10),
 		}
 		texttt.Recipient()
-		h.Bot.Bot.Send(texttt, x)
+		_, err := h.Bot.Bot.Send(texttt, x)
+		if err != nil {
+			h.Bot.Bot.Send(texttt, "Ошибка при отправке сообщения "+err.Error())
+		}
 	}
 
 }
