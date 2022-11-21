@@ -14,20 +14,15 @@ func (bot *UpgradeBot) StartHandler(ctx telebot.Context) error {
 		LastName:   ctx.Sender().LastName,
 		ChatId:     ctx.Chat().ID,
 	}
-
 	existUser, err := bot.Users.FindOne(ctx.Chat().ID)
-
 	if err != nil {
 		log.Printf("Ошибка получения пользователя %v", err)
 	}
-
 	if existUser == nil {
 		err := bot.Users.Create(newUser)
-
 		if err != nil {
 			log.Printf("Ошибка создания пользователя %v", err)
 		}
 	}
-
 	return ctx.Send("Привет, " + ctx.Sender().FirstName)
 }

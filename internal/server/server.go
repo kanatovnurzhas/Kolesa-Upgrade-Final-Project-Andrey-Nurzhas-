@@ -1,8 +1,8 @@
 package server
 
 import (
-	bot_init "gobot/cmd/bot"
 	Config "gobot/config"
+	bot_init "gobot/internal/bot"
 	MyHandler "gobot/internal/handlers"
 	"net/http"
 	"time"
