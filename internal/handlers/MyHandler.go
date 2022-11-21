@@ -15,14 +15,12 @@ type MyHandler struct {
 }
 
 func (h MyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
 	err := r.ParseForm()
 	if err != nil {
 		fmt.Println(err)
 	}
 	x := r.Form.Get("text")
 	result, existUser := h.Bot.Users.FindAll()
-
 	for result.Next() {
 		h.Bot.Users.Db.ScanRows(result, &existUser)
 		texttt := &Recipient.Recipient{
@@ -34,5 +32,4 @@ func (h MyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			h.Bot.Bot.Send(texttt, "Ошибка при отправке сообщения "+err.Error())
 		}
 	}
-
 }
